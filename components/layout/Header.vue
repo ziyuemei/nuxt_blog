@@ -29,21 +29,25 @@
           <!-- 登录、注册/头像 -->
           <div class="nav-sign">
             <el-button type="text">管理后台</el-button>
-            <el-button type="text" @click="$store.dispatch('LoginPage')">登录</el-button>
-            <el-button type="primary" size="small" round>注册</el-button>
+            <el-button v-if="!userInfo" type="text" @click="$store.dispatch('LoginPage')">登录</el-button>
+            <el-button
+              v-if="!userInfo"
+              type="primary"
+              size="small"
+              round
+              @click="$store.dispatch('LoginPage')"
+            >注册</el-button>
           </div>
           <el-dropdown @command="handleCommand">
             <div class="el-dropdown-link">
-              <el-avatar
-                src="https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg"
-                icon="el-icon-user-solid"
-              ></el-avatar>
+              <!-- src="https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg" -->
+              <el-avatar icon="el-icon-user-solid" :src="userInfo?userInfo.imageUrl:null"></el-avatar>
             </div>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="article">写文章</el-dropdown-item>
               <el-dropdown-item command="question">提问题</el-dropdown-item>
               <el-dropdown-item command="user">我的主页</el-dropdown-item>
-              <el-dropdown-item command="logout">退出</el-dropdown-item>
+              <el-dropdown-item v-if="userInfo" command="logout">退出</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </el-col>
@@ -54,10 +58,37 @@
 
 <script>
 export default {
+  computed: {
+    userInfo() {
+      return this.$store.state.userInfo;
+    },
+  },
   methods: {
     // 下拉点击后调用
     handleCommand(command) {
-      this.$message("click on item " + command);
+      if (!this.userInfo) {
+        return this.$store.dispatch("LoginPage");
+      }
+      switch (command) {
+        case "article":
+          // 打开新窗口
+          let routeData = this.$router.resolve("/article/edit");
+          window.open(routeData.href, "_blank");
+          // 当前窗口打开
+          // this.$router.push("/article/edit");
+          break;
+        case "question":
+          // 打开新窗口
+          routeData = this.$router.resolve("/question/edit");
+          window.open(routeData.href, "_blank");
+          break;
+        case "logout":
+          // 退出
+          this.$store.dispatch("UserLogout");
+          break;
+        default:
+          break;
+      }
     },
   },
 };

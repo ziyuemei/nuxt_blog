@@ -1,5 +1,9 @@
 export default {
     mode: 'universal',
+    env: {
+        // 认证客户端URL  process.env.authURL
+        authURL: process.env.NODE_ENV === 'dev' ? '//localhost:7000' : '//login.ziyuemei.com'
+    },
     /*
      ** Headers of the page
      */
@@ -30,7 +34,8 @@ export default {
      ** Plugins to load before mounting the App
      */
     plugins: [
-        '~/plugins/element-ui.js'
+        '~/plugins/element-ui.js',
+        '~/plugins/interceptor.js'
     ],
     /*
      ** Nuxt.js dev-modules
@@ -39,7 +44,20 @@ export default {
     /*
      ** Nuxt.js modules
      */
-    modules: [],
+    modules: [
+        '@nuxtjs/axios',
+        'cookie-universal-nuxt',
+    ],
+    axios: {
+        proxy: true, // 开启代理转发
+        prefix: '/api' // 请求接口添加前缀: /test => /api/test
+    },
+    proxy: { // 代理转发
+        '/api': { // /api/test => https://mock.mengxuegu.com/mock/60d04a6a1138164f2236b369/mengxuegu/blog/test
+            target: 'https://mock.mengxuegu.com/mock/60d04a6a1138164f2236b369/mengxuegu/blog',
+            pathRewrite: { '/api': '' }
+        }
+    },
     /*
      ** Build configuration
      */
